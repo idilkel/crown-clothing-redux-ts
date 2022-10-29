@@ -1,11 +1,14 @@
 import { createSelector } from "reselect";
 
+import { RootState } from "../store";
+
 import { CategoriesState } from "./category.reducer";
 import { CategoryMap } from "./category.types";
 
 //initial selector for the reducer slice needed from the redux state
 //state.categories is a Category type (see in the reducer)
-const selectCategoryReducer = (state): CategoriesState => state.categories;
+const selectCategoryReducer = (state: RootState): CategoriesState =>
+  state.categories;
 
 //categories array from the categories slice
 //2 arguments: input selector, output selector

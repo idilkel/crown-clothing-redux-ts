@@ -8,6 +8,8 @@ import {
 } from "../../utils/reducer/reducer.utils";
 import { AnyAction } from "redux";
 
+//---------------Action types:------------------------------------
+
 export type SetCategories = ActionWithPayload<
   CATEGORIES_ACTION_TYPES.SET_CATEGORIES,
   Category[]
@@ -34,7 +36,7 @@ export type CategoryAction =
   | FetchCategoriesSuccess
   | FetchCategoriesFailed;
 
-//------------------------------------------------------
+//--------------------createAction:----------------------------------
 
 export const setCategories = withMatcher(
   (categoriesArray: Category[]): SetCategories =>

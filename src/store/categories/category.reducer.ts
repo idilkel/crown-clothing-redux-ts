@@ -16,7 +16,7 @@ export const CATEGORIES_INITIAL_STATE: CategoriesState = {
 //type-narrowing for type-safety - might be overkill
 export const categoriesReducer = (
   state = CATEGORIES_INITIAL_STATE,
-  action = {} as AnyAction
+  action: AnyAction
 ): CategoriesState => {
   if (setCategories.match(action)) {
     return { ...state, categories: action.payload }; //will be SetCategories type

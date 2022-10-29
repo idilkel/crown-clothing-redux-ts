@@ -1,5 +1,5 @@
-import { compose, createStore, applyMiddleware } from "redux";
-import { persistStore, persistReducer } from "redux-persist";
+import { compose, createStore, applyMiddleware, Middleware } from "redux";
+import { persistStore, persistReducer, PersistConfig } from "redux-persist";
 import storage from "redux-persist/lib/storage";
 
 //import { loggerMiddleware } from "./middleware/logger";
@@ -8,10 +8,23 @@ import logger from "redux-logger";
 //root-reducer- a combination of all the reducers
 import { rootReducer } from "./root-reducer";
 
-const persistConfig = {
+export type RootState = ReturnType<typeof rootReducer>;
+
+declare global {
+  interface Window {
+    __REDUX_DEVTOOLS_EXTENSION_COMPOSE__?: typeof compose;
+  }
+}
+
+type ExtendedPersistConfig = PersistConfig<RootState> & {
+  whiteList: (keyof RootState)[];
+};
+
+const persistConfig: ExtendedPersistConfig = {
   key: "root", //persist all
   storage,
-  blacklist: ["user"], //we don't want the user to persist because it's coming from AuthListener and they might conflict
+  whiteList: ["cart"],
+  //blacklist: ["user"], //we don't want the user to persist because it's coming from AuthListener and they might conflict
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
@@ -23,7 +36,8 @@ const persistedReducer = persistReducer(persistConfig, rootReducer);
 
 //Replace the "home-made" logger on the above line, using redux-logger
 const middleWares = [process.env.NODE_ENV !== "production" && logger].filter(
-  Boolean
+  //to avoid getting false as optional type: if middleware passes the filter it must be type of Middleware; then pass the parameter into the Boolean check
+  (middleware): middleware is Middleware => Boolean(middleware)
 );
 
 //To use either Redux-Dev-Tools on Chrom or the regular console
