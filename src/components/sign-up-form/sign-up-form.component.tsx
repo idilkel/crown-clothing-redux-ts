@@ -1,6 +1,7 @@
 //import { signInWithEmailAndPassword } from "firebase/auth";
 //useContext is not needed: We have the onAuthStateChangedListener instead
-import { useState } from "react";
+import { useState, FormEvent, ChangeEvent } from "react";
+import { AuthError, AuthErrorCodes } from "firebase/auth";
 
 import FormInput from "../form-input/form-input.component";
 import Button from "../button/button.component";
@@ -35,7 +36,7 @@ const SignUpForm = () => {
     setFormFields(defaultFormFields);
   };
 
-  const handleSubmit = async (event) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (password !== confirmPassword) {
       setAlertMsg("password confirmation doesn't match");
@@ -44,21 +45,24 @@ const SignUpForm = () => {
     }
     try {
       //   const response = await createAuthUserWithEmailAndPassword(
-      const { user } = await createAuthUserWithEmailAndPassword(
+      const userCredential = await createAuthUserWithEmailAndPassword(
         email,
         password
       );
+
       //   console.log(response);
 
       //We have the onAuthStateChangedListener instead
       //setCurrentUser(user);
-
-      await createUserDocumentFromAuth(user, { displayName });
+      if (userCredential) {
+        const { user } = userCredential;
+        await createUserDocumentFromAuth(user, { displayName });
+      }
       resetFormFields();
       navigate("/shop");
       setAlertMsg("");
     } catch (error) {
-      if (error.code === "auth/email-already-in-use") {
+      if ((error as AuthError).code === AuthErrorCodes.EMAIL_EXISTS) {
         setAlertMsg("Can't create a user, email already in use");
         //alert(`Can't create a user, email already in use`);
       } else {
@@ -67,7 +71,7 @@ const SignUpForm = () => {
     }
   };
 
-  const handleChange = (event) => {
+  const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
     setFormFields({ ...formFields, [name]: value });
   };

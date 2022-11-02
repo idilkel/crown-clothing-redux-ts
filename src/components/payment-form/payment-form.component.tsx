@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, FormEvent, ChangeEvent } from "react";
 import { CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import { useSelector, useDispatch } from "react-redux";
 
@@ -31,7 +31,7 @@ const PaymentForm = () => {
 
   //console.log(currentUser);
 
-  const paymentHandler = async (e) => {
+  const paymentHandler = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (!stripe || !elements) {
@@ -55,9 +55,13 @@ const PaymentForm = () => {
       paymentIntent: { client_secret },
     } = response;
 
+    const cardDetails = elements.getElement(CardElement);
+
+    if (cardDetails === null) return;
+
     const paymentResult = await stripe.confirmCardPayment(client_secret, {
       payment_method: {
-        card: elements.getElement(CardElement),
+        card: cardDetails,
         billing_details: {
           name: cardHolderName !== "" ? cardHolderName : "Guest",
         },
@@ -78,7 +82,7 @@ const PaymentForm = () => {
     }
   };
 
-  const handleChange = (event) => {
+  const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
     const nameString = event.target.value;
     setCardHolderName(nameString);
   };
@@ -88,11 +92,12 @@ const PaymentForm = () => {
       <FormContainer onSubmit={paymentHandler}>
         <h2>Credit Card Payment</h2>
         <NameInput
+          label="Card Holder Full Name"
           type="text"
           onChange={handleChange}
           name="cardHolderName"
           value={cardHolderName}
-          placeholder="Card Holder Full Name"
+          placeholder=""
         />
         <CardElementContainer>
           <CardElement />

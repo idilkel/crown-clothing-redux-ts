@@ -1,6 +1,7 @@
 //import { signInWithEmailAndPassword } from "firebase/auth";
 //useContext is not needed: We have the onAuthStateChangedListener instead
-import { useState } from "react";
+import { useState, FormEvent, ChangeEvent } from "react";
+import { AuthError, AuthErrorCodes, User } from "firebase/auth";
 
 import FormInput from "../form-input/form-input.component";
 import Button, { BUTTON_TYPE_CLASSES } from "../button/button.component";
@@ -49,7 +50,7 @@ const SignInForm = () => {
     //createUserDocumentFromAuth(user);
   };
 
-  const handleSubmit = async (event) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     try {
@@ -58,10 +59,15 @@ const SignInForm = () => {
       //   password
       // );
       // console.log(response);
-      const { user } = await signInAuthUserWithEmailAndPassword(
+      const userCredential = await signInAuthUserWithEmailAndPassword(
         email,
         password
       );
+
+      if (userCredential) {
+        const { user } = userCredential;
+      }
+
       //We have the onAuthStateChangedListener instead
       //setCurrentUser(user);
 
@@ -69,12 +75,12 @@ const SignInForm = () => {
       navigate("/shop");
       setAlertMsg("");
     } catch (error) {
-      switch (error.code) {
-        case "auth/wrong-password":
-          setAlertMsg("Incorrect password for email. Please try again.");
-          //alert("Incorrect password for email. Please try again.");
+      switch ((error as AuthError).code) {
+        case AuthErrorCodes.INVALID_PASSWORD:
+          setAlertMsg("Incorrect email or password. Please try again.");
+          //alert("Incorrect email or password. Please try again.");
           break;
-        case "auth/user-not-found":
+        case "auth/user-not-found": //AuthErrorCodes.EMAIL_NOT_FOUND isn't recognized
           setAlertMsg("No user associated with this email");
           //alert("No user associated with this email");
           break;
@@ -84,7 +90,7 @@ const SignInForm = () => {
     }
   };
 
-  const handleChange = (event) => {
+  const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
     setFormFields({ ...formFields, [name]: value });
   };

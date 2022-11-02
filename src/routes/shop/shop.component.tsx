@@ -13,8 +13,6 @@ import {
   getCategoriesAndDocuments,
 } from "../../utils/firebase/firebase.utils";
 
-//import {} from  "./shop.styles";
-
 const Shop = () => {
   const dispatch = useDispatch();
   //This useEffect is done only once for uploading the array of the SHOP_DATA to the firestore
